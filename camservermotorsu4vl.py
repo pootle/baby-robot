@@ -7,6 +7,8 @@ from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 from socketserver import ThreadingMixIn
 import phatpigpio as ph
+import sensorsSR04 as sensors
+import json
 
 class camhandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -47,6 +49,13 @@ class camhandler(http.server.BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
             self.wfile.write(tstr.encode('utf-8'))
+        elif pf[-1]=='sensors':
+            lastreadings=usens.getlastgood()
+            datats=json.dumps(lastreadings)
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(datats.encode('utf-8'))            
         else:
             print('do not understand', pf[-1])
             self.send_error(404,"I think there may be an error - I only do jpegs (%s)" % pf[-1])
@@ -72,12 +81,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
     webport = args.webport if args.webport else DEFWEBPORT
     mdrive=ph.phatpair()
+    usens=sensors.usSensors(sensors=(testultra2.s1,testultra2.s2), log=1, printlog=False, printformat=None)
     try:
         print("server starting on port %d" % webport)
         server = ThreadedHTTPServer(('',webport),camhandler)
         server.serve_forever()
     except KeyboardInterrupt:
         server.socket.close()
-    
+    usens.stop()
     mdrive.stop()
     mdrive.close()
