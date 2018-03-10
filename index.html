@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Pootle's stream</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" >
+            document.addEventListener("DOMContentLoaded", init, false);
+
+            function init() {{
+                var picel = document.getElementById("mjpeg_dest");
+                picel.addEventListener("mousedown", picclick, false);
+                setInterval(gettemp, 3000)
+//                setInterval(getsensors,1000)
+            }}
+
+            function showtemp() {{
+                var tempel = document.getElementById("cput");
+                tempel.innerHTML=this.responseText
+            }}
+            
+            function temperror() {{
+                var tempel = document.getElementById("cput");
+                tempel.innerHTML="'"
+            }}
+
+            function gettemp() {{
+                var req = new XMLHttpRequest();
+                req.open("GET", 'cputemp', true);
+                req.onload = showtemp;
+                req.onerror = temperror
+                req.send();
+            }}
+            
+            function senserror() {{
+                var dispel=document.getElementById("sensl");
+                dispel.innerText='no sensor';
+                dispel=document.getElementById("sensr");
+                dispel.innerText='no sensor';
+            }}
+
+            function getsensors() {{
+                var req = new XMLHttpRequest();
+                req.open("GET", 'sensors', true);
+                req.onload = showsens;
+                req.onerror = senserror
+                req.send();
+            }}
+            
+            function showsens() {{
+                var sinfo=JSON.parse(this.response);
+                var dispel=document.getElementById("sensl");
+                dispel.innerText=Number.parseFloat(sinfo['left ']).toFixed(1);
+                dispel=document.getElementById("sensr");
+                dispel.innerText=Number.parseFloat(sinfo['right']).toFixed(1);
+            }}
+
+            var lastspeed=0
+            var lastturn=0
+            function errorFunction() {{
+                alert('Stream stopped');
+            }}
+            function fetcherrorFunction() {{
+                alert('transmission error')
+            }}
+            function motorcommanderror() {{
+                alert('failed to action motor command')
+            }}
+            function speedturn(speed,turn) {{
+                var req = new XMLHttpRequest();
+                if (turn>90000) {{
+                    pturn=lastturn
+                }} else {{
+                    pturn=turn
+                    lastturn=turn
+                }}
+                if (speed>90000) {{
+                   pspeed=lastspeed
+                }} else {{
+                   pspeed=speed
+                   lastspeed=speed
+                }}
+                var rstr = "setspeedturn2?speed="+pspeed+"&turn="+pturn;
+                req.open("GET", rstr, true);
+                req.onload = function (e) {{
+                }};
+                req.onerror = motorcommanderror
+                req.send();
+            }}
+            function stopme() {{
+                var con=confirm("Really?  Stop the web server?")
+                if (con) {{
+                    var req = new XMLHttpRequest();
+                    var rstr = "shutdown";
+                    req.open("GET", rstr, true);
+                    req.onload = function (e) {{
+                    }};
+                    req.onerror = motorcommanderror
+                    req.send();
+                }}
+            }}
+            function picclick(ev) {{
+                ixoff=ev.currentTarget.width/2
+                iyoff=ev.currentTarget.height/2
+                xpos=Math.round((ev.offsetX-ixoff)*1000/ixoff)
+                ypos=Math.round((-ev.offsetY+iyoff)*1000/iyoff)
+                var req = new XMLHttpRequest();
+                var rstr = "setspeedturn2?speed="+ypos+"&turn="+xpos;
+                req.open("GET", rstr, true);
+                req.onload = function (e) {{
+                }};
+                req.onerror = fetcherrorFunction
+                req.send();
+            }}
+        </script>
+    </head>
+    <body>
+          <div><table>
+            <tr><font size=18>
+            <td style='text-align:right'>left sensor:</td><td id="sensl">unknown</td>
+            <td style='text-align:right'>pi temp:</td><td id="cput">unknown</td>
+            <td style='text-align:right'>right sensor:</td><td id="sensr">unknown</td>
+            </font></tr>
+             <tr>
+                <td colspan="6">
+                  <img id="mjpeg_dest" src="http://{srvr}/stream/video.mjpeg" />
+                </td>
+             </tr>
+             <tr>
+                <td colspan="4"style='text-align:center;vertical-align:middle'><span onclick="speedturn(0,0)"><font size=24>STOP</font></span></td>
+                <td colspan="2"style='text-align:center;vertical-align:middle'><span onclick="stopme()"><font size=18>close</font></span></td>
+             </tr>
+          </table></div>
+    </body>
+</html>
