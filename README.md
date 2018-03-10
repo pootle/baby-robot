@@ -14,4 +14,7 @@ It uses various bits of existing software and some extra parts I have written.
 * index.html The web page (that has some parameterised edits applied) that camservermotorsuv4l.py serves up
 * motoradds.py very simple extension classes to a motorset (from pimotors) to provide simple steering control
 * devastator_config.py The configuration info needed to run 2 motors with steering through an adafruit DC and stepper motor HAT
+
 Note there are a couple of other files in this repo that are historical and will be removed shortly.
+
+In particular most of the functionality from phatpigpio has now been moved to the pimotors repo.
