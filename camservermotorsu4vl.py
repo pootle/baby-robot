@@ -10,12 +10,14 @@ from socketserver import ThreadingMixIn
 import motorset
 import json
 
+indexfiles={'ok':'index.html','off':'index_off.html','na':'index_nocam.html'}
+
 class camhandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         pr = urlparse(self.path)
         pf = pr.path.split('/')
         if pf[-1] == '' or pf[-1] == 'index.html':
-            sfp = Path('index.html')
+            sfp=Path(indexfiles[camstate])
             pstr = self.headers['Host'].split(':')
             pstr[-1] = '8080'
             with sfp.open('r') as sfile:
@@ -88,6 +90,7 @@ def findMyIp():
           )
 
 if __name__ == '__main__':
+    import pistatus
     clparse = argparse.ArgumentParser()
     clparse.add_argument( "-w", "--webport", type=int, default=DEFWEBPORT
         , help="port used for the webserver, default %d" % DEFWEBPORT)
@@ -109,6 +112,16 @@ if __name__ == '__main__':
        minf='no motors found'
     usens=None
     usinf='no sensors running'
+    server = ThreadedHTTPServer(('',webport),camhandler)
+    camon=pistatus.get_state('camera_on')
+    if camon:
+        camstate='ok'
+    else:
+        camenabled=pistatus.get_state('camera_enabled')
+        if camenabled:
+            camstate='off'
+        else:
+            camstate='na'
     ips=findMyIp()
     if len(ips)==0:
         print('starting webserver on internal IP only (no external IP addresses found), port %d, %s, %s' % (webport, minf, usinf))
@@ -117,7 +130,6 @@ if __name__ == '__main__':
     else:
         print('Starting webserver on multiple ip addresses (%s), port:%d, %s, %s' % (str(ips),webport, minf, usinf))
     try:
-        server = ThreadedHTTPServer(('',webport),camhandler)
         server.serve_forever()
         print('webserver shut down')
     except KeyboardInterrupt:
