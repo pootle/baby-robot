@@ -18,3 +18,15 @@ It uses various bits of existing software and some extra parts I have written.
 Note there are a couple of other files in this repo that are historical and will be removed shortly.
 
 In particular most of the functionality from phatpigpio has now been moved to the pimotors repo.
+
+##setup
+* clone the repository pimotors to your Raspberry Pi
+* clone this repository to your Raspberry PI
+* clone the adafruit DC & stepper Hat repository if you are using that hat
+* from the baby-robot repository, copy robot.service to /etc/systemd/system
+* create a folder 'robotrun' directly under pi's home folder. This will hold the robot config and log files. You can use a different folder, robot.service will need to be updated
+* copy and edit an appropriate config file from pimotors to ~/robotrun
+* sudo systemctl daemon-reload # to pick up the new service file
+* sudo service robot start
+* sudo service robot status
+* on any local machine, use a web browser to open <pi's IP address':8088
