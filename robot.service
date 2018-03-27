@@ -1,0 +1,14 @@
+[Unit]
+Description=Alsager U3A robot
+After=multi-user.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/pi/robotrun
+ExecStart=/usr/bin/python3 /home/pi/gitbits/baby-robot/camservermotorsu4vl.py -a robotconfig
+StandardOutput=null
+StandardError=null
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

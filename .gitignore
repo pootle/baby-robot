@@ -1,5 +1,6 @@
 *.py~
 *.html~
+*.log
 __pycache__/
 *.py[cod]
 *$py.class

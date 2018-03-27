@@ -26,7 +26,7 @@ import asprocess
 
 class tstub(asprocess.runAsProcess):
     def __init__(self, **kwargs):
-        super().__init__('motoradds', 'tester', ticktime=.3, procName='motorprocess', kwargs=kwargs)
+        super().__init__('motoradds.tester', ticktime=.1, procName='motorprocess', kwacktimeout=3, timeoutfunction='stopMotor', **kwargs)
 
     def setspeeddir(self, speedf, dirf):
         self.runOnProc('setspeeddir', 'a', speedf=speedf, dirf=dirf)
