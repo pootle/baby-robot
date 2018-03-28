@@ -36,10 +36,10 @@ class tester(motorset.motorset):
         
         dirf  : from -1000 to + 1000 representing fastest possible turn left, through straight to fastest possible turn right
         """
-#        print("request speed", speedf, '(', type(speedf).__name__, ') ','dir', dirf, '(', type(dirf).__name__, ')')
+        print("request speed", speedf, '(', type(speedf).__name__, ') ','dir', dirf, '(', type(dirf).__name__, ')')
         nullspeed=self.mcontrols['nullspeed']
         speedl=0 if abs(speedf) < nullspeed else (abs(speedf)-nullspeed)/(1000-nullspeed)
-        if abs(speedf) < 0:
+        if speedf < 0:
             speedl=-speedl
         speedr=speedl
         # speedr/l now in range -1 to +1
